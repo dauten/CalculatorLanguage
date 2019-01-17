@@ -92,24 +92,31 @@ std::stack<operand> perform(std::stack<operand> s, int al[]){
   }
   if(m.value == 4){
     //assignment
-    if(t.type == operand::SCA)
+    if(t.type == operand::SCA){
       al[b.value] = t.value;
-    if(t.type == operand::VAR)
+    }
+    if(t.type == operand::VAR){
       al[b.value] = al[t.value];
+    }
+    r = al[b.value];
   }
   operand o;
   o.type = operand::SCA;
   o.value = r;
-//  std::cout << r << '\n';
+  if(s.empty()){
+    s.push(o);
+    return s;
+  }
+
   s.push(o);
-  return s;
+  return perform(s, al);
+
 }
 
 
 int main () {
 
   std::string input;
-  std::ifstream myfile("191.in");
   std::stack<operand> stack;
   int alphabet[0x5B]; //current variable values
                     //when operand is between values 0x41 and 0x5A
@@ -118,20 +125,20 @@ int main () {
 
   alphabet[0x41] = 4;
   operand o;
-  o.type = operand::SCA;
-  o.value = 15;
-  stack.push(o);
-
-  o.type = operand::OP;
-  o.value = 0;
-  stack.push(o);
-
   o.type = operand::VAR;
   o.value = 0x41;
   stack.push(o);
 
   o.type = operand::OP;
-  o.value = 1;
+  o.value = 4;
+  stack.push(o);
+
+  o.type = operand::SCA;
+  o.value = 4;
+  stack.push(o);
+
+  o.type = operand::OP;
+  o.value = 0;
   stack.push(o);
 
   o.type = operand::SCA;
@@ -139,23 +146,25 @@ int main () {
   stack.push(o);
 
   stack = perform(stack, alphabet);
-  stack = perform(stack, alphabet);
-//  stack = s;
   std::cout << stack.top().value << '\n';
 
+  std::stack<operand> s;
 
-  /*
-  getline(myfile,input);
-  //while ( getline(myfile,input) )
-  {
-    for(int i = 0; i < input.length(); i++){
-      if(input[i] != ' ' && input[i] != '\n' && input[i] != '\r'){
-        stack.push(input[i]);
-        std::cout << stack.top() << '\n';
-      }
+  o.type = operand::VAR;
+  o.value = 0x41;
+  s.push(o);
 
-    }
-  }*/
-  myfile.close();
+  o.type = operand::OP;
+  o.value = 0;
+  s.push(o);
+
+  o.type = operand::SCA;
+  o.value = 4;
+  s.push(o);
+
+  s = perform(s, alphabet);
+  std::cout << s.top().value << '\n';
+
+
   return 0;
 }
