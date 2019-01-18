@@ -41,11 +41,28 @@ std::stack<operand> perform(std::stack<operand> s, int al[]){
   s.pop();
   operand m = s.top();
   s.pop();
+  if(m.type == operand::PAR && m.value == 0){
+    s.push(t);
+    return s;
+
+  }
   operand b = s.top();
   s.pop();
   int r = 0;
+
   if(m.value == 0){
     //add
+
+    if(b.type == operand::PAR){
+      s = perform(s, al);//b=result of interior of parenthesis
+      int to =  s.top().value ;
+      b = s.top();
+      b.type = operand::SCA;
+      b.value = to;
+      s.pop();
+
+    }
+
     if(b.type == operand::SCA && t.type == operand::SCA)
       r = b.value + t.value;
     if(b.type == operand::VAR && t.type == operand::SCA)
@@ -54,10 +71,21 @@ std::stack<operand> perform(std::stack<operand> s, int al[]){
       r = b.value + al[t.value];
     if(b.type == operand::VAR && t.type == operand::VAR)
       r = al[b.value] + al[t.value];
+
     //if b or t's type is VAR, instead of using itself use alphabet[b.value]
   }
   if(m.value == 1){
     //add
+    if(b.type == operand::PAR){
+      s = perform(s, al);//b=result of interior of parenthesis
+      int to =  s.top().value ;
+      b = s.top();
+      b.type = operand::SCA;
+      b.value = to;
+      s.pop();
+
+    }
+
     if(b.type == operand::SCA && t.type == operand::SCA)
       r = b.value - t.value;
     if(b.type == operand::VAR && t.type == operand::SCA)
@@ -69,6 +97,17 @@ std::stack<operand> perform(std::stack<operand> s, int al[]){
     //if b or t's type is VAR, instead of using itself use alphabet[b.value]
   }if(m.value == 2){
     //add
+
+    if(b.type == operand::PAR){
+      s = perform(s, al);//b=result of interior of parenthesis
+      int to =  s.top().value ;
+      b = s.top();
+      b.type = operand::SCA;
+      b.value = to;
+      s.pop();
+
+    }
+
     if(b.type == operand::SCA && t.type == operand::SCA)
       r = b.value * t.value;
     if(b.type == operand::VAR && t.type == operand::SCA)
@@ -80,6 +119,17 @@ std::stack<operand> perform(std::stack<operand> s, int al[]){
     //if b or t's type is VAR, instead of using itself use alphabet[b.value]
   }if(m.value == 3){
     //add
+
+    if(b.type == operand::PAR){
+      s = perform(s, al);//b=result of interior of parenthesis
+      int to =  s.top().value ;
+      b = s.top();
+      b.type = operand::SCA;
+      b.value = to;
+      s.pop();
+
+    }
+
     if(b.type == operand::SCA && t.type == operand::SCA)
       r = b.value / t.value;
     if(b.type == operand::VAR && t.type == operand::SCA)
@@ -122,9 +172,15 @@ int main () {
                     //when operand is between values 0x41 and 0x5A
                     //subtract 65 (0x41) from it to find its current-ness
                     //in the array
+  int old[0x5B];
+  for(int y = 0 ; y < 0x5B; y++){
+    old[y] = 0;
+    alphabet[y] = 0;
+  }
 
-  alphabet[0x41] = 4;
+
   operand o;
+/*
   o.type = operand::VAR;
   o.value = 0x41;
   stack.push(o);
@@ -146,7 +202,13 @@ int main () {
   stack.push(o);
 
   stack = perform(stack, alphabet);
-  std::cout << stack.top().value << '\n';
+  for(char i = 0; i < 0x5B; i++){
+    if(old[i] != alphabet[i]){
+      std::cout << i << " = " << alphabet[i];
+    }
+  }
+  std::cout << '\n';
+*/
 
   std::stack<operand> s;
 
@@ -155,16 +217,43 @@ int main () {
   s.push(o);
 
   o.type = operand::OP;
+  o.value = 4;
+  s.push(o);
+
+  o.type = operand::PAR;
   o.value = 0;
   s.push(o);
 
   o.type = operand::SCA;
-  o.value = 4;
+  o.value = 1;
+  s.push(o);
+
+  o.type = operand::OP;
+  o.value = 0;
+  s.push(o);
+
+  o.type = operand::SCA;
+  o.value = 1;
+  s.push(o);
+
+  o.type = operand::PAR;
+  o.value = 1;
+  s.push(o);
+
+  o.type = operand::OP;
+  o.value = 2;
+  s.push(o);
+
+  o.type = operand::SCA;
+  o.value = 2;
   s.push(o);
 
   s = perform(s, alphabet);
-  std::cout << s.top().value << '\n';
-
-
+  
+  for(char i = 0; i < 0x5B; i++){
+    if(old[i] != alphabet[i]){
+      std::cout << i << " = " << alphabet[i] << ", ";
+    }
+  }
   return 0;
 }
