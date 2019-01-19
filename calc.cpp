@@ -168,6 +168,7 @@ int main () {
 
   std::string input;
   std::stack<operand> stack;
+  std::ifstream infile("191.in");
   int alphabet[0x5B]; //current variable values
                     //when operand is between values 0x41 and 0x5A
                     //subtract 65 (0x41) from it to find its current-ness
@@ -178,78 +179,115 @@ int main () {
     alphabet[y] = 0;
   }
 
-
   operand o;
-/*
-  o.type = operand::VAR;
-  o.value = 0x41;
-  stack.push(o);
-
-  o.type = operand::OP;
-  o.value = 4;
-  stack.push(o);
-
-  o.type = operand::SCA;
-  o.value = 4;
-  stack.push(o);
-
-  o.type = operand::OP;
-  o.value = 0;
-  stack.push(o);
-
-  o.type = operand::SCA;
-  o.value = 3;
-  stack.push(o);
-
-  stack = perform(stack, alphabet);
-  for(char i = 0; i < 0x5B; i++){
-    if(old[i] != alphabet[i]){
-      std::cout << i << " = " << alphabet[i];
-    }
-  }
-  std::cout << '\n';
-*/
 
   std::stack<operand> s;
 
-  o.type = operand::VAR;
-  o.value = 0x41;
-  s.push(o);
+  std::string line;
+  //read input
+  if(infile.is_open()){
+    while(getline(infile, line)){
+        std::cout << "\n\n" << line << '\n';
+        std::string built = "";
+        for(int i = 0; i < line.length(); i++){
+          char next = line[i];
 
-  o.type = operand::OP;
-  o.value = 4;
-  s.push(o);
 
-  o.type = operand::PAR;
-  o.value = 0;
-  s.push(o);
 
-  o.type = operand::SCA;
-  o.value = 1;
-  s.push(o);
+          if(built != "" && (next < 48 || next > 57)){
+            o.type = operand::SCA;
+            o.value = atoi(built.c_str());
+            built = "";
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
 
-  o.type = operand::OP;
-  o.value = 0;
-  s.push(o);
+          if(next > 64 && next < 91){
+            //add to stack a VAR with value next
+            o.type = operand::VAR;
+            o.value = next;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 40){
+            //add to stack a PAR with value 0
+            o.type = operand::PAR;
+            o.value = 0;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 41){
+            //add to stack a PAR with value 1
+            o.type = operand::PAR;
+            o.value = 1;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 43){
+            //add +
+            o.type = operand::OP;
+            o.value = 0;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 45){
+            //add -
+            o.type = operand::OP;
+            o.value = 1;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 42){
+            //add *
+            o.type = operand::OP;
+            o.value = 2;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 47){
+            //add /
+            o.type = operand::OP;
+            o.value = 3;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next == 61){
+            //add =
+            o.type = operand::OP;
+            o.value = 4;
+            s.push(o);
+            //std::cout << "Pushing type " << o.type << " with vaule " << o.value << '\n';
+          }
+          else if(next > 47 && next < 58){
+            //start constructing an int, may be more than one chars and may be negated
+            built += next;
+            //std::cout << "build is now " << built << " because next was "<< (next-48) << '\n';
 
-  o.type = operand::SCA;
-  o.value = 1;
-  s.push(o);
+          }
+          else if(next == 95){
+            //proceed as if a number follows, but set flag to negate it
+            built = "-";
+          }
+        }
 
-  o.type = operand::PAR;
-  o.value = 1;
-  s.push(o);
+        s = perform(s, alphabet);
 
-  o.type = operand::OP;
-  o.value = 2;
-  s.push(o);
+        for(char i = 0; i < 0x5B; i++){
+          if(old[i] != alphabet[i]){
+            std::cout << i << " = " << alphabet[i] << ", ";
+          }
+          old[i] = alphabet[i];
+        }
 
-  o.type = operand::SCA;
-  o.value = 2;
-  s.push(o);
+
+
+        s.pop();
+
+    }
+  }
 
   s = perform(s, alphabet);
-  
+
   for(char i = 0; i < 0x5B; i++){
     if(old[i] != alphabet[i]){
       std::cout << i << " = " << alphabet[i] << ", ";
