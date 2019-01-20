@@ -179,6 +179,7 @@ int main () {
     alphabet[y] = 0;
   }
 
+  int isFirst;
   operand o;
 
   std::stack<operand> s;
@@ -187,12 +188,12 @@ int main () {
   //read input
   if(infile.is_open()){
     while(getline(infile, line)){
-        std::cout << "\n\n" << line << '\n';
         std::string built = "";
         for(int i = 0; i < line.length(); i++){
           char next = line[i];
 
-
+          if(next == '#')
+            return 0;
 
           if(built != "" && (next < 48 || next > 57)){
             o.type = operand::SCA;
@@ -271,12 +272,25 @@ int main () {
         }
 
         s = perform(s, alphabet);
-
+        isFirst = 1;
         for(char i = 0; i < 0x5B; i++){
           if(old[i] != alphabet[i]){
-            std::cout << i << " = " << alphabet[i] << ", ";
+
+            if(isFirst){
+              isFirst = 0;
+              std::cout << i << " = " << alphabet[i];
+            }
+            else{
+              std::cout << ", " << i << " = " << alphabet[i];
+            }
           }
           old[i] = alphabet[i];
+        }
+        if(isFirst){
+          std::cout << "No Change\n";
+        }
+        else{
+          std::cout << "\n";
         }
 
 
@@ -286,12 +300,5 @@ int main () {
     }
   }
 
-  s = perform(s, alphabet);
-
-  for(char i = 0; i < 0x5B; i++){
-    if(old[i] != alphabet[i]){
-      std::cout << i << " = " << alphabet[i] << ", ";
-    }
-  }
   return 0;
 }
